@@ -1,5 +1,5 @@
 const countryCode = "ca"
-const sellerName = "YOUR_USERNAME"
+const sellerName = "StayFinePersonalized"
 
 let scrapedData = []
 
@@ -20,7 +20,7 @@ const scraperObject = {
       let newPage = await browser.newPage()
       await newPage.goto(link)
       dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
-      dataObj["price"] = await newPage.$eval("#listing-page-cart > div.align-buybox > div > div > div > div > p", text => text.textContent)
+      dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
       resolve(dataObj)
       await newPage.close()
     });
