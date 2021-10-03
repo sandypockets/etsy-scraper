@@ -22,13 +22,24 @@ const scraperObject = {
       dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
       dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
       resolve(dataObj)
+      reject(dataObj)
       await newPage.close()
     });
 
     for(let link in urls){
       let currentPageData = await pagePromise(urls[link])
       scrapedData.push(currentPageData)
-      console.log(currentPageData) // Debugging
+    }
+
+    console.log("Scraped Data:  ", scrapedData)
+
+    for (let data of scrapedData) {
+      let title = data.title
+      title.toString()
+      title.trim()
+      title.slice(18) // Removes 'read the full title'
+      console.log("Stringified Title:  ", title)
+
     }
   }
 }
