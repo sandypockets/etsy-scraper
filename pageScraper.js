@@ -39,7 +39,15 @@ const scraperObject = {
       title.trim()
       title.slice(18) // Removes 'read the full title'
       console.log("Stringified Title:  ", title)
-
+      let price = data.price
+      price.toString()
+      price.trim()
+      price = price.slice(67)
+      price = price.trim()
+      if (price.length > 5) {
+        price = Number(price)
+      }
+      console.log("Numberified Price:  ", price)
     }
   }
 }
