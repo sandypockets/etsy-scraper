@@ -31,18 +31,18 @@ const scraperObject = {
       scrapedData.push(currentPageData)
     }
 
-    console.log("Scraped Data:  ", scrapedData)
+    // console.log("Scraped Data:  ", scrapedData) // Debugging
 
     for (let data of scrapedData) {
       let title = data.title
       title.toString()
       title.trim()
-      title.slice(18) // Removes 'read the full title'
+      title = title.slice(29) // Removes 'read the full title'
       console.log("Stringified Title:  ", title)
       let price = data.price
       price.toString()
       price.trim()
-      price = price.slice(67)
+      price = price.slice(67, 72)
       price = price.trim()
       if (price.length > 5) {
         price = Number(price)
