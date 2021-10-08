@@ -18,7 +18,6 @@ const scraperObject = {
     await page.waitForSelector(".shop-home")
     let urls = await page.$$eval("div.v2-listing-card", links => {
       links = links.map(el => el.querySelector("a").href)
-      console.log("Links: ", links) // Debugging
       return links
     })
 
@@ -29,6 +28,7 @@ const scraperObject = {
       console.log(`Navigating to ${link}...`)
       dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
       dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
+      dataObj["url"] = link
       resolve(dataObj)
       reject(dataObj)
       await newPage.close()
@@ -40,25 +40,24 @@ const scraperObject = {
     }
 
     for (let data of this.scrapedData) {
+      let url = data.url
       let title = data.title
       if (title) {
-        title.toString()
-        title.trim()
-        title = title.slice(29) // Removes 'read the full title'
-        console.log("Stringified Title:  ", title) // Debugging
+        title.toString().trim()
+        title = title.slice(28) // Removes 'read the full title'
+        title = title.split("\n")
+        title = title[0]
       }
       let price = data.price
       if (price) {
-        price.toString()
-        price.trim()
+        price.toString().trim()
         price = price.slice(67, 72)
         price = price.trim()
         if (price.length > 5) {
           price = Number(price)
         }
-        console.log("Numberified Price:  ", price) // Debugging
       }
-      this.formattedData.push({price, title})
+      this.formattedData.push({ price, title, url })
 
     }
     console.log("formattedData:  ", this.formattedData)
