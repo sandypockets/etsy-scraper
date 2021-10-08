@@ -1,6 +1,8 @@
-const countryCode = "ca"
-const sellerName = "StayFinePersonalized"
 const { Parser } = require('json2csv')
+const fsPromises = require('fs/promises')
+
+const sellerName = "StayFinePersonalized"
+const countryCode = "ca"
 
 const scraperObject = {
   url: `https://etsy.com/${countryCode}/shop/${sellerName}`,
@@ -9,7 +11,11 @@ const scraperObject = {
   toCsv: function(jsonData) {
     const json2csvParser = new Parser()
     const csv = json2csvParser.parse(jsonData)
-    console.log("CSV Output:  ", csv)
+    // console.log("CSV Output:  ", csv) // Debugging
+    fsPromises.writeFile("./scrapedoutput.csv", csv)
+      .then(() => { console.log("CSV is ready.") })
+      .catch((err) => { console.error(err) })
+      .finally(() => { process.exit() })
   },
   async scraper(browser) {
     let page = await browser.newPage()
@@ -60,7 +66,7 @@ const scraperObject = {
       this.formattedData.push({ price, title, url })
 
     }
-    console.log("formattedData:  ", this.formattedData)
+    console.log("The CSV is being prepared...")
     this.toCsv(this.formattedData)
   }
 }
