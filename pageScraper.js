@@ -1,11 +1,16 @@
 const countryCode = "ca"
 const sellerName = "StayFinePersonalized"
-
-let scrapedData = []
-let formattedData = []
+const { Parser } = require('json2csv')
 
 const scraperObject = {
   url: `https://etsy.com/${countryCode}/shop/${sellerName}`,
+  scrapedData: [],
+  formattedData: [],
+  toCsv: function(jsonData) {
+    const json2csvParser = new Parser()
+    const csv = json2csvParser.parse(jsonData)
+    console.log("CSV Output:  ", csv)
+  },
   async scraper(browser) {
     let page = await browser.newPage()
     console.log(`Navigating to ${this.url}...`)
@@ -16,6 +21,7 @@ const scraperObject = {
       console.log("Links: ", links) // Debugging
       return links
     })
+
     let pagePromise = (link) => new Promise(async(resolve, reject) => {
       let dataObj = {}
       let newPage = await browser.newPage()
@@ -30,10 +36,10 @@ const scraperObject = {
 
     for(let link in urls){
       let currentPageData = await pagePromise(urls[link])
-      scrapedData.push(currentPageData)
+      this.scrapedData.push(currentPageData)
     }
 
-    for (let data of scrapedData) {
+    for (let data of this.scrapedData) {
       let title = data.title
       if (title) {
         title.toString()
@@ -52,10 +58,11 @@ const scraperObject = {
         }
         console.log("Numberified Price:  ", price) // Debugging
       }
-      formattedData.push({price, title})
+      this.formattedData.push({price, title})
 
     }
-    console.log("formattedData:  ", formattedData)
+    console.log("formattedData:  ", this.formattedData)
+    this.toCsv(this.formattedData)
   }
 }
 
