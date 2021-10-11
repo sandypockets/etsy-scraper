@@ -40,6 +40,9 @@ const scraperObject = {
       dataObj["numberOfSales"] = await newPage.$eval("#listing-page-cart > div > div > div > div > span.wt-text-caption", text => text.textContent)
       dataObj["description"] = await newPage.$eval("#wt-content-toggle-product-details-read-more > p", text => text.textContent)
       dataObj["processingTime"] = await newPage.$eval("#shipping-variant-div > div > div.wt-grid > div > p", text => text.textContent)
+
+      dataObj["shippingCost"] = await newPage.$eval("span.currency-value", text => text.textContent)
+
       dataObj["url"] = link
       resolve(dataObj)
       reject(dataObj)
@@ -72,6 +75,8 @@ const scraperObject = {
         }
       }
 
+      let shippingCost = data.shippingCost.toString().trim()
+
       // let originalPrice = data.originalPrice
       // originalPrice.toString().trim()
       // console.log("ORIGINAL PRICE: ", originalPrice)
@@ -88,7 +93,7 @@ const scraperObject = {
       let processingTime = data.processingTime
       processingTime = processingTime.toString().trim()
 
-      this.formattedData.push({ title, price, url, description, numberOfSales, processingTime })
+      this.formattedData.push({ title, price, url, description, numberOfSales, processingTime, shippingCost })
 
     }
     console.log("The CSV is being prepared...")
