@@ -33,33 +33,46 @@ const scraperObject = {
       await newPage.goto(link)
       console.log(`Navigating to ${link}...`)
       await page.waitForSelector("#content")
-
-      dataObj["url"] = link
-      dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
-      dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
-      // Not all products are on sale
-      // dataObj["originalPrice"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p.wt-text-strikethrough", text => text.textContent)
-      dataObj["numberOfSales"] = await newPage.$eval("#listing-page-cart > div > div > div > div > span.wt-text-caption", text => text.textContent)
-      dataObj["description"] = await newPage.$eval("#wt-content-toggle-product-details-read-more > p", text => text.textContent)
-      dataObj["processingTime"] = await newPage.$eval("#shipping-variant-div > div > div.wt-grid > div > p", text => text.textContent)
-      dataObj["shippingCost"] = await newPage.$eval("span.currency-value", text => text.textContent)
-
-      await page.waitForSelector("#reviews")
-      console.log(`Navigating to reviews...`)
-      // Works, but not all reviews have text. Some only contain a rating, which throws an error
-      // dataObj["reviewOne"] = await newPage.$eval("#review-preview-toggle-0", text => text.textContent)
-      // dataObj["reviewTwo"] = await newPage.$eval("#review-preview-toggle-1", text => text.textContent)
-      // dataObj["reviewThree"] = await newPage.$eval("#review-preview-toggle-2", text => text.textContent)
-      // dataObj["reviewFour"] = await newPage.$eval("p#review-preview-toggle-3", text => text.textContent)
-
-      // Currently returning null even if not null
-      for (let i = 0; i <= 4; i++) {
-        const reviewExists = await page.$(`#review-preview-toggle-${i}`)
-        if (reviewExists !== null) {
-          dataObj["reviews"][`review${i}`] = await newPage.$eval(`#review-preview-toggle-${i}`, text => text.textContent)
-        }
-
+      try {
+        dataObj["url"] = link
+        dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
+        dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
+        // Not all products are on sale
+        // dataObj["originalPrice"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p.wt-text-strikethrough", text => text.textContent)
+        dataObj["numberOfSales"] = await newPage.$eval("#listing-page-cart > div > div > div > div > span.wt-text-caption", text => text.textContent)
+        dataObj["description"] = await newPage.$eval("#wt-content-toggle-product-details-read-more > p", text => text.textContent)
+        dataObj["processingTime"] = await newPage.$eval("#shipping-variant-div > div > div.wt-grid > div > p", text => text.textContent)
+        dataObj["shippingCost"] = await newPage.$eval("span.currency-value", text => text.textContent)
+      } catch {
+        console.log("Error: Main data scrape failed.")
       }
+
+      console.log(`Navigating to reviews...`)
+      await page.waitForSelector("#reviews")
+      try {
+        dataObj["reviewOne"] = await newPage.$eval("#review-preview-toggle-0", text => text.textContent)
+      } catch {
+        console.log("reviewOne failed")
+      }
+
+      try {
+        dataObj["reviewTwo"] = await newPage.$eval("#review-preview-toggle-1", text => text.textContent)
+      } catch {
+        console.log("reviewTwo failed")
+      }
+
+      try {
+        dataObj["reviewThree"] = await newPage.$eval("#review-preview-toggle-2", text => text.textContent)
+      } catch {
+        console.log("reviewThree failed")
+      }
+
+      try {
+        dataObj["reviewFour"] = await newPage.$eval("#review-preview-toggle-3", text => text.textContent)
+      } catch {
+        console.log("reviewFour failed")
+      }
+
       resolve(dataObj)
       reject(dataObj)
       await newPage.close()
@@ -73,7 +86,24 @@ const scraperObject = {
     for (let data of this.scrapedData) {
       let url = data.url
       let title = data.title
-      let reviews = data.reviews
+      // let originalPrice = data.originalPrice.toString().trim()
+      let shippingCost = data.shippingCost.toString().trim()
+      // Represents how many sales the seller has in total, not the number of products
+      let numberOfSales = data.numberOfSales
+      let description = data.description
+      let processingTime = data.processingTime
+
+      for (let property in data) {
+        if (property.valueOf().length > 0) {
+          property = property.toString().trim()
+        }
+      }
+
+      let reviewOne = data.reviewOne
+      let reviewTwo = data.reviewTwo
+      let reviewThree = data.reviewThree
+      let reviewFour = data.reviewFour
+
 
       if (title) {
         title.toString().trim()
@@ -92,16 +122,17 @@ const scraperObject = {
         }
       }
 
-      // let originalPrice = data.originalPrice.toString().trim()
-      let shippingCost = data.shippingCost.toString().trim()
-      // Represents how many sales the seller has in total, not the number of products
-      let numberOfSales = data.numberOfSales.toString().trim()
-      let description = data.description.toString().trim()
-      let processingTime = data.processingTime.toString().trim()
+      console.log("Trimming strings...")
+      for (let property in data) {
+        if (property.valueOf() !== null) {
+          property = property.toString().trim()
+        }
+      }
 
       this.formattedData.push({
         title, price, url, description, numberOfSales,
-        processingTime, shippingCost, reviews
+        processingTime, shippingCost,
+        reviewOne, reviewTwo, reviewThree, reviewFour
       })
 
     }
