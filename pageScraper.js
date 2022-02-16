@@ -36,15 +36,15 @@ const scraperObject = {
       try {
         dataObj["url"] = link
         dataObj["title"] = await newPage.$eval("#listing-page-cart > div.wt-mb-xs-2 > h1", text => text.textContent)
-        dataObj["price"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p", text => text.textContent)
+        dataObj["price"] = await newPage.$eval("#listing-page-cart div[data-buy-box-region='price'] p", text => text.textContent)
         // Not all products are on sale
         // dataObj["originalPrice"] = await newPage.$eval("#listing-page-cart > div > div > div > div > div > p.wt-text-strikethrough", text => text.textContent)
-        dataObj["numberOfSales"] = await newPage.$eval("#listing-page-cart > div > div > div > div > span.wt-text-caption", text => text.textContent)
+        dataObj["numberOfSales"] = await newPage.$eval("#listing-page-cart span.wt-text-caption", text => text.textContent)
         dataObj["description"] = await newPage.$eval("#wt-content-toggle-product-details-read-more > p", text => text.textContent)
         dataObj["processingTime"] = await newPage.$eval("#shipping-variant-div > div > div.wt-grid > div > p", text => text.textContent)
         dataObj["shippingCost"] = await newPage.$eval("span.currency-value", text => text.textContent)
-      } catch {
-        console.log("Error: Main data scrape failed.")
+      } catch (err) {
+        console.log("Error: Main data scrape failed: ", err)
       }
 
       console.log(`Navigating to reviews...`)
@@ -104,7 +104,6 @@ const scraperObject = {
       let reviewThree = data.reviewThree
       let reviewFour = data.reviewFour
 
-
       if (title) {
         title.toString().trim()
         title = title.slice(28) // Removes 'read the full title'
@@ -114,14 +113,15 @@ const scraperObject = {
 
       let price = data.price
       if (price) {
-        price.toString().trim()
-        price = price.slice(67, 72)
-        price = price.trim()
-        if (price.length > 5) {
-          price = Number(price)
+        // Trim and remove line breaks
+        price = price.replace(/(\r\n|\n|\r)/gm, "")
+        // Remove inner spaces
+        price = price.replace(/\s/g, "")
+        if (price.length > 9) {
+          price = price.split(':')
+          price = price[1]
         }
       }
-
       console.log("Trimming strings...")
       for (let property in data) {
         if (property.valueOf() !== null) {
