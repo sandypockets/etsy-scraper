@@ -3,7 +3,7 @@ A simple web scraper for gathering product data from a particular vendor, and ou
 
 ## Technology
 - [Puppeteer](https://github.com/puppeteer/puppeteer)
-- [JSON2CSV](https://www.npmjs.com/package/json2csv)
+- [JSON2CSV](https://github.com/zemirco/json2csv)
 
 ## Getting started
 1. Install dependencies by running `yarn install` from the project root.
